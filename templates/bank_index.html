@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Банковская система - Выдача кредитов</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        h1 {
+            color: #2a5298;
+            font-size: 28px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+        
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .card h3 {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .card .value {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            background: #e0e0e0;
+        }
+        
+        .tab.active {
+            background: #2a5298;
+            color: white;
+        }
+        
+        .content-section {
+            display: none;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #1e3c72;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background: #2a5298;
+            color: white;
+            font-weight: 500;
+        }
+        
+        tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .form-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status.active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .sms-message {
+            background: #e8f4fd;
+            border-left: 4px solid #2a5298;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 5px 5px 0;
+            font-style: italic;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🏦 Банковская система</div>
+            <h1>Выдача кредитов юридическим лицам</h1>
+        </header>
+        
+        <div class="stats-cards">
+            <div class="card">
+                <h3>Клиентов</h3>
+                <div class="value" id="clientsCount">0</div>
+            </div>
+            <div class="card">
+                <h3>Кредитов выдано</h3>
+                <div class="value" id="loansCount">0</div>
+            </div>
+            <div class="card">
+                <h3>Активных кредитов</h3>
+                <div class="value" id="totalLoans">0 ₽</div>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('clients')">👥 Клиенты</button>
+            <button class="tab" onclick="showTab('loans')">💰 Кредиты</button>
+            <button class="tab" onclick="showTab('new-loan')">➕ Новая выдача</button>
+            <button class="tab" onclick="showTab('loan-types')">📋 Типы кредитов</button>
+        </div>
+        
+        <!-- Секция клиентов -->
+        <div id="clients" class="content-section active">
+            <div class="section-header">
+                <h2>Список клиентов</h2>
+                <button class="btn" onclick="showNewClientForm()">Добавить клиента</button>
+            </div>
+            
+            <div id="newClientForm" class="form-container" style="display: none;">
+                <h3>Новый клиент</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Название организации *</label>
+                        <input type="text" id="clientName" placeholder="ООО 'Ромашка'">
+                    </div>
+                    <div class="form-group">
+                        <label>Вид собственности</label>
+                        <select id="clientOwnership">
+                            <option value="ООО">ООО</option>
+                            <option value="ЗАО">ЗАО</option>
+                            <option value="ПАО">ПАО</option>
+                            <option value="ИП">ИП</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Адрес</label>
+                    <input type="text" id="clientAddress" placeholder="Москва, ул. Ленина 10">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Телефон</label>
+                        <input type="text" id="clientPhone" placeholder="+7-999-123-45-67">
+                    </div>
+                    <div class="form-group">
+                        <label>Контактное лицо</label>
+                        <input type="text" id="clientContact" placeholder="Иванов Иван Иванович">
+                    </div>
+                </div>
+                <button class="btn" onclick="addClient()">Сохранить клиента</button>
+                <button class="btn" style="background: #6c757d;" onclick="hideNewClientForm()">Отмена</button>
+            </div>
+            
+            <div id="alertClient" class="alert"></div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Название</th>
+                        <th>Вид собственности</th>
+                        <th>Контактное лицо</th>
+                        <th>Телефон</th>
+                    </tr>
+                </thead>
+                <tbody id="clientsTable">
+                    <!-- Данные будут загружены здесь -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Секция кредитов -->
+        <div id="loans" class="content-section">
+            <div class="section-header">
+                <h2>Выданные кредиты</h2>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Клиент</th>
+                        <th>Тип кредита</th>
+                        <th>Сумма</th>
+                        <th>Дата выдачи</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody id="loansTable">
+                    <!-- Данные будут загружены здесь -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Секция новой выдачи -->
+        <div id="new-loan" class="content-section">
+            <div class="section-header">
+                <h2>Выдача нового кредита</h2>
+            </div>
+            
+            <div class="form-container">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Клиент *</label>
+                        <select id="loanClient">
+                            <option value="">Выберите клиента</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Тип кредита *</label>
+                        <select id="loanType">
+                            <option value="">Выберите тип кредита</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Сумма кредита (руб.) *</label>
+                        <input type="number" id="loanAmount" placeholder="500000">
+                    </div>
+                    <div class="form-group">
+                        <label>Дата выдачи *</label>
+                        <input type="date" id="loanIssueDate">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Дата возврата</label>
+                        <input type="date" id="loanReturnDate">
+                    </div>
+                    <div class="form-group">
+                        <label>Статус</label>
+                        <select id="loanStatus">
+                            <option value="в обработке">в обработке</option>
+                            <option value="активен">активен</option>
+                            <option value="погашен">погашен</option>
+                            <option value="просрочен">просрочен</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="addLoan()">Оформить кредит</button>
+                
+                <div id="alertLoan" class="alert"></div>
+                <div id="smsPreview" class="sms-message" style="display: none;">
+                    <!-- SMS сообщение будет показано здесь -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Секция типов кредитов -->
+        <div id="loan-types" class="content-section">
+            <div class="section-header">
+                <h2>Типы кредитов</h2>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Тип кредита</th>
+                        <th>Условия</th>
+                        <th>Ставка (%)</th>
+                        <th>Срок (мес.)</th>
+                    </tr>
+                </thead>
+                <tbody id="loanTypesTable">
+                    <!-- Данные будут загружены здесь -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5001/api';
+        
+        // Загрузка статистики
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_URL}/stats`);
+                const stats = await response.json();
+                
+                document.getElementById('clientsCount').textContent = stats.clients_count;
+                document.getElementById('loansCount').textContent = stats.loans_count;
+                document.getElementById('totalLoans').textContent = 
+                    new Intl.NumberFormat('ru-RU').format(stats.total_active_loans) + ' ₽';
+            } catch (error) {
+                console.error('Ошибка загрузки статистики:', error);
+            }
+        }
+        
+        // Загрузка клиентов
+        async function loadClients() {
+            try {
+                const response = await fetch(`${API_URL}/clients`);
+                const clients = await response.json();
+                
+                const tbody = document.getElementById('clientsTable');
+                tbody.innerHTML = '';
+                
+                clients.forEach(client => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${client.id}</td>
+                        <td><strong>${client.name}</strong></td>
+                        <td>${client.ownership_type || '-'}</td>
+                        <td>${client.contact_person || '-'}</td>
+                        <td>${client.phone || '-'}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                // Обновляем селект для выдачи кредитов
+                updateClientSelect(clients);
+                
+                if (clients.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align: center;">Нет клиентов</td>
+                        </tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки клиентов:', error);
+            }
+        }
+        
+        // Загрузка типов кредитов
+        async function loadLoanTypes() {
+            try {
+                const response = await fetch(`${API_URL}/loan_types`);
+                const types = await response.json();
+                
+                const tbody = document.getElementById('loanTypesTable');
+                tbody.innerHTML = '';
+                
+                types.forEach(type => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${type.name}</strong></td>
+                        <td>${type.conditions || '-'}</td>
+                        <td>${type.interest_rate || '0'}%</td>
+                        <td>${type.term_months || '-'}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                // Обновляем селект для выдачи кредитов
+                updateLoanTypeSelect(types);
+                
+                if (types.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="4" style="text-align: center;">Нет типов кредитов</td>
+                        </tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки типов кредитов:', error);
+            }
+        }
+        
+        // Загрузка кредитов
+        async function loadLoans() {
+            try {
+                const response = await fetch(`${API_URL}/loans`);
+                const loans = await response.json();
+                
+                const tbody = document.getElementById('loansTable');
+                tbody.innerHTML = '';
+                
+                loans.forEach(loan => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${loan.id}</td>
+                        <td>${loan.client_name}</td>
+                        <td>${loan.loan_type_name}</td>
+                        <td>${new Intl.NumberFormat('ru-RU').format(loan.amount)} ₽</td>
+                        <td>${loan.issue_date ? new Date(loan.issue_date).toLocaleDateString('ru-RU') : '-'}</td>
+                        <td><span class="status ${loan.status === 'активен' ? 'active' : 'pending'}">${loan.status}</span></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                if (loans.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" style="text-align: center;">Нет выданных кредитов</td>
+                        </tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки кредитов:', error);
+            }
+        }
+        
+        // Обновление селекта клиентов
+        function updateClientSelect(clients) {
+            const select = document.getElementById('loanClient');
+            select.innerHTML = '<option value="">Выберите клиента</option>';
+            
+            clients.forEach(client => {
+                const option = document.createElement('option');
+                option.value = client.id;
+                option.textContent = `${client.name} (${client.contact_person || 'без контакта'})`;
+                select.appendChild(option);
+            });
+        }
+        
+        // Обновление селекта типов кредитов
+        function updateLoanTypeSelect(types) {
+            const select = document.getElementById('loanType');
+            select.innerHTML = '<option value="">Выберите тип кредита</option>';
+            
+            types.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type.id;
+                option.textContent = `${type.name} (${type.interest_rate}%, ${type.term_months} мес.)`;
+                select.appendChild(option);
+            });
+        }
+        
+        // Добавление клиента
+        async function addClient() {
+            const name = document.getElementById('clientName').value;
+            const ownership = document.getElementById('clientOwnership').value;
+            const address = document.getElementById('clientAddress').value;
+            const phone = document.getElementById('clientPhone').value;
+            const contact = document.getElementById('clientContact').value;
+            
+            if (!name) {
+                showAlert('client', 'Введите название организации', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/clients`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name,
+                        ownership_type: ownership,
+                        address,
+                        phone,
+                        contact_person: contact
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    // Очищаем форму
+                    document.getElementById('clientName').value = '';
+                    document.getElementById('clientAddress').value = '';
+                    document.getElementById('clientPhone').value = '';
+                    document.getElementById('clientContact').value = '';
+                    
+                    // Обновляем данные
+                    loadClients();
+                    loadStats();
+                    showAlert('client', 'Клиент успешно добавлен', 'success');
+                    hideNewClientForm();
+                } else {
+                    showAlert('client', result.error || 'Ошибка при добавлении', 'error');
+                }
+            } catch (error) {
+                showAlert('client', 'Ошибка соединения', 'error');
+                console.error('Error:', error);
+            }
+        }
+        
+        // Добавление кредита
+        async function addLoan() {
+            const clientId = document.getElementById('loanClient').value;
+            const typeId = document.getElementById('loanType').value;
+            const amount = document.getElementById('loanAmount').value;
+            const issueDate = document.getElementById('loanIssueDate').value;
+            const returnDate = document.getElementById('loanReturnDate').value;
+            const status = document.getElementById('loanStatus').value;
+            
+            if (!clientId || !typeId || !amount || !issueDate) {
+                showAlert('loan', 'Заполните все обязательные поля (*)', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/loans`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        client_id: parseInt(clientId),
+                        loan_type_id: parseInt(typeId),
+                        amount: parseFloat(amount),
+                        issue_date: issueDate,
+                        return_date: returnDate || null,
+                        status
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    // Очищаем форму
+                    document.getElementById('loanAmount').value = '';
+                    document.getElementById('loanIssueDate').value = '';
+                    document.getElementById('loanReturnDate').value = '';
+                    
+                    // Показываем SMS сообщение
+                    const smsDiv = document.getElementById('smsPreview');
+                    smsDiv.innerHTML = `
+                        <strong>📱 SMS сообщение клиенту:</strong><br>
+                        "${result.sms}"
+                    `;
+                    smsDiv.style.display = 'block';
+                    
+                    // Обновляем данные
+                    loadLoans();
+                    loadStats();
+                    showAlert('loan', 'Кредит успешно оформлен', 'success');
+                    
+                    // Переключаемся на вкладку кредитов через 3 секунды
+                    setTimeout(() => {
+                        showTab('loans');
+                        smsDiv.style.display = 'none';
+                    }, 3000);
+                } else {
+                    showAlert('loan', result.error || 'Ошибка при оформлении', 'error');
+                }
+            } catch (error) {
+                showAlert('loan', 'Ошибка соединения', 'error');
+                console.error('Error:', error);
+            }
+        }
+        
+        // Управление вкладками
+        function showTab(tabName) {
+            // Скрываем все секции
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Убираем активный класс у всех кнопок
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Показываем нужную секцию
+            document.getElementById(tabName).classList.add('active');
+            
+            // Добавляем активный класс кнопке
+            event.target.classList.add('active');
+            
+            // Загружаем данные для активной вкладки
+            if (tabName === 'clients') {
+                loadClients();
+            } else if (tabName === 'loans') {
+                loadLoans();
+            } else if (tabName === 'loan-types') {
+                loadLoanTypes();
+            }
+        }
+        
+        // Показать/скрыть форму нового клиента
+        function showNewClientForm() {
+            document.getElementById('newClientForm').style.display = 'block';
+        }
+        
+        function hideNewClientForm() {
+            document.getElementById('newClientForm').style.display = 'none';
+        }
+        
+        // Показать сообщение
+        function showAlert(type, message, alertType) {
+            const alertDiv = document.getElementById(`alert${type.charAt(0).toUpperCase() + type.slice(1)}`);
+            alertDiv.textContent = message;
+            alertDiv.className = `alert ${alertType}`;
+            alertDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                alertDiv.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStats();
+            loadClients();
+            loadLoanTypes();
+            loadLoans();
+            
+            // Устанавливаем сегодняшнюю дату по умолчанию
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('loanIssueDate').value = today;
+        });
+    </script>
+</body>
+</html>
